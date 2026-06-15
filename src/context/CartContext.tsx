@@ -11,8 +11,8 @@ import { Product, CartItem } from '@/types';
 interface CartContextType {
   cartItems: CartItem[];
   addToCart: (product: Product) => void;
-  removeFromCart: (productId: number) => void;
-  updateQuantity: (productId: number, quantity: number) => void;
+  removeFromCart: (productId: number | string) => void;
+  updateQuantity: (productId: number | string, quantity: number) => void;
   clearCart: () => void;
   cartCount: number;
   cartTotal: number;
@@ -37,13 +37,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const removeFromCart = (productId: number) => {
+  const removeFromCart = (productId: number | string) => {
     setCartItems((prev) =>
       prev.filter((item) => item.product.id !== productId)
     );
   };
 
-  const updateQuantity = (productId: number, quantity: number) => {
+  const updateQuantity = (productId: number | string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(productId);
       return;

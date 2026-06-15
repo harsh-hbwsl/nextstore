@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Product } from '@/types';
 import ProductsClient from '@/components/ProductsClient';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { getAdminProducts, mapAdminToProduct } from '@/utils/productsStore';
 
 export const metadata: Metadata = {
   title: 'All Products',
@@ -18,7 +19,11 @@ async function getProducts(): Promise<Product[]> {
     cache: 'no-store', // SSR: fresh data every request
   });
   if (!res.ok) throw new Error('Failed to fetch products');
-  return res.json();
+  
+  const apiProducts: Product[] = await res.json();
+  const adminProds = getAdminProducts().map(mapAdminToProduct);
+  
+  return [...adminProds, ...apiProducts];
 }
 
 export default async function ProductsPage() {

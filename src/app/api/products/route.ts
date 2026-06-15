@@ -1,26 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-interface AdminProduct {
-  id: string;
-  title: string;
-  description: string;
-  price: number;
-  category: string;
-  image: string;
-  createdAt: string;
-}
-
-/*
-  In-memory store.
-  ⚠️ This resets whenever the Next.js server restarts.
-  For persistence, replace with a database (MongoDB, SQLite, Prisma, etc.)
-  or write/read from a local JSON file using Node's `fs` module.
-*/
-const adminProducts: AdminProduct[] = [];
+import { getAdminProducts, addAdminProduct } from '@/utils/productsStore';
 
 // GET /api/products → return all admin-added products
 export async function GET() {
-  return NextResponse.json(adminProducts);
+  return NextResponse.json(getAdminProducts());
 }
 
 // POST /api/products → add a new product
@@ -42,17 +25,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const newProduct: AdminProduct = {
-      id: `admin-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-      title: body.title.trim(),
-      description: body.description?.trim() || '',
-      price: parseFloat(parseFloat(body.price).toFixed(2)),
-      category: body.category?.trim() || 'uncategorized',
-      image: body.image?.trim() || '',
-      createdAt: new Date().toISOString(),
-    };
-
-    adminProducts.push(newProduct);
+    const newProduct = addAdminProduct({
+      title: body.title,
+      description: body.description,
+      price: body.price,
+      category: body.category,
+      image: body.image,
+    });
 
     return NextResponse.json(newProduct, { status: 201 });
   } catch {

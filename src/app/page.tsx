@@ -3,6 +3,7 @@ import Image from 'next/image';
 import type { Metadata } from 'next';
 import { Product } from '@/types';
 import ProductCard from '@/components/ProductCard';
+import { getAdminProducts, mapAdminToProduct } from '@/utils/productsStore';
 
 export const metadata: Metadata = {
   title: 'NextStore — Your One-Stop Shop',
@@ -14,7 +15,11 @@ async function getFeaturedProducts(): Promise<Product[]> {
     next: { revalidate: 3600 }, // ISR: revalidate every hour
   });
   if (!res.ok) throw new Error('Failed to fetch featured products');
-  return res.json();
+  
+  const apiProducts: Product[] = await res.json();
+  const adminProds = getAdminProducts().map(mapAdminToProduct);
+  
+  return [...adminProds, ...apiProducts].slice(0, 4);
 }
 
 const CATEGORIES = [
@@ -86,7 +91,7 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-gray-800 mb-3">Shop by Category</h2>
-            <p className="text-gray-500">Find exactly what you're looking for</p>
+            <p className="text-gray-500">{"Find exactly what you're looking for"}</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {CATEGORIES.map((cat) => (

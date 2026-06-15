@@ -5,14 +5,18 @@ import type { Metadata } from 'next';
 import { Product } from '@/types';
 import AddToCartButton from '@/components/AddToCartButton';
 import StarRating from '@/components/StarRating';
+import { getAdminProducts, mapAdminToProduct } from '@/utils/productsStore';
 
 // ── SSG: generate all product pages at build time ──────────────
 export async function generateStaticParams() {
-  const products: Product[] = await fetch(
+  const apiProducts: Product[] = await fetch(
     'https://fakestoreapi.com/products'
   ).then((r) => r.json());
 
-  return products.map((p) => ({ id: String(p.id) }));
+  const adminProds = getAdminProducts().map(mapAdminToProduct);
+  const allProducts = [...adminProds, ...apiProducts];
+
+  return allProducts.map((p) => ({ id: String(p.id) }));
 }
 
 // ── Dynamic SEO metadata per product ──────────────────────────
@@ -36,6 +40,14 @@ export async function generateMetadata({
 }
 
 async function getProduct(id: string): Promise<Product | null> {
+  if (id.startsWith('admin-')) {
+    const adminProduct = getAdminProducts().find((p) => p.id === id);
+    if (adminProduct) {
+      return mapAdminToProduct(adminProduct);
+    }
+    return null;
+  }
+
   try {
     const res = await fetch(`https://fakestoreapi.com/products/${id}`);
     if (!res.ok) return null;
