@@ -110,7 +110,7 @@ export default async function HomePage() {
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
           {[
             { icon: '🚚', title: 'Free Shipping', desc: 'On orders over $50' },
-            { icon: '↩️', title: 'Easy Returns', desc: '30-day return policy' },
+            { icon: '↩️', title: 'Easy Returns', desc: '10-day return policy' },
             { icon: '🔒', title: 'Secure Payment', desc: '100% protected' },
           ].map((b) => (
             <div key={b.title}>
