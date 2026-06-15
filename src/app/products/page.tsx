@@ -4,6 +4,7 @@ import { Product } from '@/types';
 import ProductsClient from '@/components/ProductsClient';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { getAdminProducts, mapAdminToProduct } from '@/utils/productsStore';
+import { categoriesStore, discountsStore } from '@/lib/store';
 
 export const metadata: Metadata = {
   title: 'All Products',
@@ -28,13 +29,20 @@ async function getProducts(): Promise<Product[]> {
 
 export default async function ProductsPage() {
   const products = await getProducts();
-  const categories = Array.from(new Set(products.map((p) => p.category)));
+  
+  // Combine categories from store and products to ensure we don't miss any
+  const storeCatSlugs = categoriesStore.map((c) => c.slug);
+  const prodCategories = products.map((p) => p.category.toLowerCase());
+  const categories = Array.from(new Set([...storeCatSlugs, ...prodCategories]));
+  
+  // Get active discounts directly from local store
+  const discounts = discountsStore.filter((d) => d.isActive);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-1">All Products</h1>
-        <p className="text-gray-500">{products.length} items available</p>
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-1">All Products</h1>
+        <p className="text-gray-500 dark:text-gray-400">{products.length} items available</p>
       </div>
 
       {/*
@@ -42,7 +50,7 @@ export default async function ProductsPage() {
         which needs a Suspense boundary in Next.js 14+.
       */}
       <Suspense fallback={<LoadingSpinner />}>
-        <ProductsClient products={products} categories={categories} />
+        <ProductsClient products={products} categories={categories} discounts={discounts} />
       </Suspense>
     </div>
   );

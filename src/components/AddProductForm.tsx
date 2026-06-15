@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Category } from '@/types';
 
 interface FormData {
   title: string;
@@ -11,14 +12,6 @@ interface FormData {
 }
 
 type FormErrors = Partial<Record<keyof FormData, string>>;
-
-const CATEGORIES = [
-  'electronics',
-  'jewelery',
-  "men's clothing",
-  "women's clothing",
-  'other',
-];
 
 const INITIAL_FORM: FormData = {
   title: '',
@@ -35,6 +28,32 @@ export default function AddProductForm() {
   const [success, setSuccess] = useState(false);
   const [serverError, setServerError] = useState('');
   const [imageError, setImageError] = useState(false);
+  
+  // Dynamic Categories from API
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCats, setLoadingCats] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/categories')
+      .then((res) => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
+      .then((data) => {
+        setCategories(data);
+        setLoadingCats(false);
+      })
+      .catch(() => {
+        // Fallbacks
+        setCategories([
+          { id: 'cat-1', name: 'Electronics',      slug: 'electronics',      emoji: '💻', isDefault: true, createdAt: '' },
+          { id: 'cat-2', name: 'Jewelery',          slug: 'jewelery',         emoji: '💍', isDefault: true, createdAt: '' },
+          { id: 'cat-3', name: "Men's Clothing",    slug: "men's clothing",   emoji: '👔', isDefault: true, createdAt: '' },
+          { id: 'cat-4', name: "Women's Clothing",  slug: "women's clothing", emoji: '👗', isDefault: true, createdAt: '' },
+        ]);
+        setLoadingCats(false);
+      });
+  }, []);
 
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
@@ -94,13 +113,13 @@ export default function AddProductForm() {
   if (success) {
     return (
       <div className="text-center py-10">
-        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <span className="text-4xl">✓</span>
+        <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+          <span className="text-4xl text-green-600 dark:text-green-400">✓</span>
         </div>
-        <h3 className="text-2xl font-bold text-gray-800 mb-2">
+        <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
           Product Added!
         </h3>
-        <p className="text-gray-500 mb-8 max-w-xs mx-auto">
+        <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-xs mx-auto">
           Your product has been saved successfully and is now stored.
         </p>
         <div className="flex gap-3 justify-center">
@@ -112,7 +131,7 @@ export default function AddProductForm() {
           </button>
           <a
             href="/admin/products"
-            className="bg-gray-100 text-gray-700 px-6 py-2.5 rounded-xl hover:bg-gray-200 transition-colors font-semibold"
+            className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-6 py-2.5 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors font-semibold"
           >
             View Products
           </a>
@@ -126,14 +145,14 @@ export default function AddProductForm() {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Server error */}
       {serverError && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl text-sm">
           ⚠️ {serverError}
         </div>
       )}
 
       {/* Title */}
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
           Title <span className="text-red-500">*</span>
         </label>
         <input
@@ -142,8 +161,8 @@ export default function AddProductForm() {
           value={formData.title}
           onChange={handleChange}
           placeholder="e.g. Wireless Noise-Cancelling Headphones"
-          className={`w-full px-4 py-3 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            errors.title ? 'border-red-300 bg-red-50' : 'border-gray-200'
+          className={`w-full px-4 py-3 border rounded-xl text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            errors.title ? 'border-red-300 bg-red-50 dark:border-red-900/20 dark:bg-red-950/20' : 'border-gray-200 dark:border-gray-700'
           }`}
         />
         {errors.title && (
@@ -153,7 +172,7 @@ export default function AddProductForm() {
 
       {/* Description */}
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
           Description <span className="text-red-500">*</span>
         </label>
         <textarea
@@ -162,8 +181,8 @@ export default function AddProductForm() {
           onChange={handleChange}
           placeholder="Describe the product features, materials, benefits..."
           rows={4}
-          className={`w-full px-4 py-3 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none ${
-            errors.description ? 'border-red-300 bg-red-50' : 'border-gray-200'
+          className={`w-full px-4 py-3 border rounded-xl text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none ${
+            errors.description ? 'border-red-300 bg-red-50 dark:border-red-900/20 dark:bg-red-950/20' : 'border-gray-200 dark:border-gray-700'
           }`}
         />
         {errors.description && (
@@ -175,7 +194,7 @@ export default function AddProductForm() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Price */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
             Price ($) <span className="text-red-500">*</span>
           </label>
           <input
@@ -186,8 +205,8 @@ export default function AddProductForm() {
             placeholder="0.00"
             min="0.01"
             step="0.01"
-            className={`w-full px-4 py-3 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.price ? 'border-red-300 bg-red-50' : 'border-gray-200'
+            className={`w-full px-4 py-3 border rounded-xl text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.price ? 'border-red-300 bg-red-50 dark:border-red-900/20 dark:bg-red-950/20' : 'border-gray-200 dark:border-gray-700'
             }`}
           />
           {errors.price && (
@@ -197,21 +216,22 @@ export default function AddProductForm() {
 
         {/* Category */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
             Category <span className="text-red-500">*</span>
           </label>
           <select
             name="category"
             value={formData.category}
             onChange={handleChange}
-            className={`w-full px-4 py-3 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white ${
-              errors.category ? 'border-red-300 bg-red-50' : 'border-gray-200'
+            disabled={loadingCats}
+            className={`w-full px-4 py-3 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white ${
+              errors.category ? 'border-red-300 bg-red-50 dark:border-red-900/20 dark:bg-red-950/20' : 'border-gray-200 dark:border-gray-700'
             }`}
           >
-            <option value="">Select category...</option>
-            {CATEGORIES.map((cat) => (
-              <option key={cat} value={cat} className="capitalize">
-                {cat}
+            <option value="">{loadingCats ? 'Loading categories...' : 'Select category...'}</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.slug} className="capitalize">
+                {cat.emoji} {cat.name}
               </option>
             ))}
           </select>
@@ -223,7 +243,7 @@ export default function AddProductForm() {
 
       {/* Image URL */}
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
           Image URL{' '}
           <span className="text-gray-400 font-normal text-xs">(optional)</span>
         </label>
@@ -233,18 +253,18 @@ export default function AddProductForm() {
           value={formData.image}
           onChange={handleChange}
           placeholder="https://example.com/product-image.jpg"
-          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         {/* Live image preview */}
         {formData.image && !imageError && (
-          <div className="mt-3 flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+          <div className="mt-3 flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
             <img
               src={formData.image}
               alt="Preview"
-              className="w-14 h-14 object-contain rounded-lg border border-gray-200 bg-white p-1"
+              className="w-14 h-14 object-contain rounded-lg border border-gray-200 dark:border-gray-700 bg-white p-1"
               onError={() => setImageError(true)}
             />
-            <p className="text-xs text-gray-500">Image preview</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Image preview</p>
           </div>
         )}
         {imageError && (
@@ -257,7 +277,7 @@ export default function AddProductForm() {
       {/* Submit */}
       <button
         type="submit"
-        disabled={submitting}
+        disabled={submitting || loadingCats}
         className="w-full bg-blue-600 text-white py-3.5 rounded-xl hover:bg-blue-700 transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {submitting ? (

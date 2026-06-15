@@ -1,7 +1,12 @@
 {
-  "/products/page": "app/products/page.js",
   "/page": "app/page.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/products/page": "app/products/page.js",
+  "/checkout/page": "app/checkout/page.js",
+  "/api/orders/route": "app/api/orders/route.js",
+  "/checkout/success/page": "app/checkout/success/page.js",
+  "/(auth)/login/page": "app/(auth)/login/page.js",
+  "/admin/discounts/page": "app/admin/discounts/page.js",
   "/admin/page": "app/admin/page.js",
-  "/admin/add-product/page": "app/admin/add-product/page.js",
-  "/admin/products/page": "app/admin/products/page.js"
+  "/admin/orders/page": "app/admin/orders/page.js"
 }

@@ -1,18 +1,8 @@
 import { AdminProduct, Product } from '@/types';
-
-// Use global store to survive hot-reloading in dev mode
-const globalForProducts = global as unknown as {
-  adminProducts: AdminProduct[];
-};
-
-export const adminProducts: AdminProduct[] = globalForProducts.adminProducts || [];
-
-if (process.env.NODE_ENV !== 'production') {
-  globalForProducts.adminProducts = adminProducts;
-}
+import { adminProductsStore } from '@/lib/store';
 
 export function getAdminProducts(): AdminProduct[] {
-  return adminProducts;
+  return adminProductsStore;
 }
 
 export function addAdminProduct(product: {
@@ -32,7 +22,7 @@ export function addAdminProduct(product: {
     image: product.image?.trim() || 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=500',
     createdAt: new Date().toISOString(),
   };
-  adminProducts.push(newProduct);
+  adminProductsStore.push(newProduct);
   return newProduct;
 }
 
