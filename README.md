@@ -68,5 +68,3 @@ nextstore/
 *   **Admin Dashboard (`/admin`):** Access the admin panel.
 *   **Add Product (`/admin/add-product`):** Fill out the form to add a custom product to the store. *(Note: Data is saved to an in-memory array and will reset upon server restart).*
 
-## 📄 License
-This project was built for educational purposes and is open source. Feel free to fork and use it as a starting template!
